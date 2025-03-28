@@ -1,10 +1,33 @@
 #Código de spyder 
-import serial # Importa la libreria para la comunicación serial 
-import time # Permite manejar los retardos durante la ejecución 
-import pandas as pd # Importa la libreria para la manipulación y almacenamiento de datos en formato de tabla 
+import serial           # Importa la libreria para la comunicación serial 
+import time             # Permite manejar los retardos durante la ejecución 
+import csv              # Importa la libreria para la manipulación y almacenamiento de datos en formato de tabla 
 
-# Configura la conexión serial
-ser = serial.Serial('COM????', 9600)  # Establece la conexión serial (Cambiando 'COM??? por el puerto) 
-time.sleep(2) # Se manda a dormir por 2 segundos para asegurar que esté funcionando 
+                                            # Configura la conexión serial
+ser = serial.Serial('COM????', 9600)        # Establece la conexión serial (Cambiando ??? por el puerto) 
+time.sleep(2)                               # Se manda a dormir por 2 segundos para asegurar que esté funcionando 
 
-data = [] # Lista vacia para almacenar los datos recibidos 
+csv_file = "datos_sensores.csv"
+
+with open(csv_file, mode="w" , newline=" ") as file:
+    writer = csv.writer(file)
+    writer.writerow(["Humedad" , "Temperatura" , "Luminosidad" , "Voltaje"])
+
+try:
+  while True:
+      line = ser.readline().decode("utf-8").strip()
+      print(line)
+
+      datos = line.split(" , ")
+      if len(datos) == 4:
+                humedad = float(datos[0].split(': ')[1].replace('%', ''))
+                temperatura = float(datos[1].split(': ')[1].replace('°C', ''))
+                luminosidad = int(datos[2].split(': ')[1])
+                voltaje = float(datos[3].split(': ')[1])
+
+    writer.writerow([humedad, temperatura, luminosidad, voltaje])
+                
+except KeyboardInterrupt:
+      print("Terminado por el usuario")
+finally:
+      ser.close()
