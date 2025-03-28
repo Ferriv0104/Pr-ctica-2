@@ -7,27 +7,36 @@ DHT dht(DHTPIN, DHTTYPE);       // Crea un objeto DHT con la configuración defi
 
 const int lumPin = A0;   // Define el pin analóigico donde estará conectado el LDR 
 const int voltPin = A1;  // Define el pin analógico donde se mide el voltaje    
-
+// Función de configuración inicial
 void setup() {
-  Serial.begin(9600);
-  dht.begin();
+  Serial.begin(9600); // Inicia la comunicación serie a 9600 baudios para monitorear los datos en la PC
+  dht.begin();        // Inicializa el sensor DHT para medir temperatura y humedad
 }
 
+// Función principal que se ejecuta en bucle
 void loop() {
-	float hum = dht.readHumidity();
-	float tem = dht.readTemperature();
-	int lumValue = analogRead(lumPin);
-	float voltValue = analogRead(voltPin) * (5.0 / 1023.0);
+  // Lectura de la humedad y temperatura del sensor DHT
+  float hum = dht.readHumidity();      // Obtiene la humedad en porcentaje (%)
+  float tem = dht.readTemperature();   // Obtiene la temperatura en grados Celsius (°C)
 
+  // Lectura del sensor de luminosidad
+  int lumValue = analogRead(lumPin);   // Lee el valor analógico de luz en el pin definido
+
+  // Lectura y conversión del voltaje
+  float voltValue = analogRead(voltPin) * (5.0 / 1023.0);  
+  // Convierte la lectura analógica del ADC (0-1023) a voltaje real (0-5V)
+
+  // Envío de los datos al Monitor Serie
   Serial.print("Humedad: ");
-  Serial.print(hum);
+  Serial.print(hum);          // Muestra el valor de humedad
   Serial.print("%, Temperatura: ");
-  Serial.print(tem);
+  Serial.print(tem);          // Muestra la temperatura en grados Celsius
   Serial.print("°C, Luminosidad: ");
-  Serial.print(lumValue);
+  Serial.print(lumValue);     // Muestra el nivel de luminosidad detectado
   Serial.print("cd, Voltaje: ");
-  Serial.print(voltValue);
-  Serial.println("v");
+  Serial.print(voltValue);    // Muestra el voltaje medido en el pin correspondiente
+  Serial.println("v");        // Indica que el valor del voltaje está en voltios y agrega un salto de línea
 
-	delay(2000);
+  // Espera 2 segundos antes de la próxima medición para evitar saturar la comunicación serie
+  delay(2000);
 }
