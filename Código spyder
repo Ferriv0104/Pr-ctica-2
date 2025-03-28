@@ -1,0 +1,49 @@
+#Código de spyder 
+import serial           # Importa la libreria para la comunicación serial 
+import time             # Permite manejar los retardos durante la ejecución 
+import csv              # Importa la libreria para la manipulación y almacenamiento de datos en formato de tabla 
+
+                                            # Configura la conexión serial
+ser = serial.Serial('COM????', 9600)        # Establece la conexión serial (Cambiando ??? por el puerto) 
+time.sleep(2)                               # Se manda a dormir por 2 segundos para asegurar que esté funcionando 
+
+import csv  # Importa la biblioteca CSV para manejar archivos en formato CSV
+import serial  # Importa la biblioteca serial para comunicación con dispositivos a través de puertos COM
+
+# Nombre del archivo CSV donde se guardarán los datos
+csv_file = "datos_sensores.csv"
+
+# Abre el archivo CSV en modo escritura ('w'), con newline=" " para evitar líneas en blanco adicionales
+with open(csv_file, mode="w", newline=" ") as file:
+    writer = csv.writer(file)  # Crea un objeto escritor para el archivo CSV
+    # Escribe la primera fila con los nombres de las columnas
+    writer.writerow(["Humedad", "Temperatura", "Luminosidad", "Voltaje"])
+
+try:
+    # Bucle infinito para leer continuamente los datos del puerto serie
+    while True:
+        line = ser.readline().decode("utf-8").strip()  # Lee una línea del puerto serie, decodifica y elimina espacios en blanco
+        print(line)  # Imprime la línea recibida en la consola de Spyder
+
+        # Divide la línea en una lista de datos usando " , " como separador
+        datos = line.split(" , ")
+        
+        # Verifica que se recibieron exactamente 4 valores antes de procesarlos
+        if len(datos) == 4:
+            # Extrae y convierte los valores recibidos
+            humedad = float(datos[0].split(': ')[1].replace('%', ''))  # Obtiene el valor numérico de humedad y elimina el símbolo '%'
+            temperatura = float(datos[1].split(': ')[1].replace('°C', ''))  # Obtiene el valor de temperatura sin el '°C'
+            luminosidad = int(datos[2].split(': ')[1])  # Convierte el valor de luminosidad a entero
+            voltaje = float(datos[3].split(': ')[1])  # Convierte el valor de voltaje a número flotante
+            
+            # Escribe los datos procesados en el archivo CSV
+            writer.writerow([humedad, temperatura, luminosidad, voltaje])
+
+# Captura la interrupción del teclado (Ctrl + C) para detener el programa de forma segura
+except KeyboardInterrupt:
+    print("Terminado por el usuario")
+
+# Cierra la conexión con el puerto serie antes de finalizar el programa
+finally:
+    ser.close()
+
